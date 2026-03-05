@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "printer-1",
+      "description": "Professional 3D Printer",
+      "imageUrl": "https://picsum.photos/seed/printer1/400/300",
+      "imageHint": "3d printer"
+    },
+    {
+      "id": "printer-2",
+      "description": "Resin 3D Printer",
+      "imageUrl": "https://picsum.photos/seed/printer2/400/300",
+      "imageHint": "resin printer"
+    },
+    {
+      "id": "lab-hero",
+      "description": "Modern Lab Environment",
+      "imageUrl": "https://picsum.photos/seed/labhero/1200/600",
+      "imageHint": "tech lab"
+    },
+    {
+      "id": "lab-logo",
+      "description": "iDIG Health Tech Logo",
+      "imageUrl": "https://picsum.photos/seed/idiglogo/200/200",
+      "imageHint": "corporate logo"
+    }
+  ]
+}
