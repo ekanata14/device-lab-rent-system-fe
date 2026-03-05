@@ -46,6 +46,8 @@ model LabSettings {
   isManuallyClosed Boolean  @default(false)
   openTime         String   @default("08:00") // HH:mm
   closeTime        String   @default("17:00") // HH:mm
+  adminPassword    String   @default("admin123")
+  bufferMinutes    Int      @default(5)
   
   updatedAt        DateTime @updatedAt
 }

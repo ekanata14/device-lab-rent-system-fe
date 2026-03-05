@@ -39,6 +39,8 @@ export async function PATCH(request: Request) {
         isManuallyClosed: newSettings.isManuallyClosed ?? false,
         openTime: newSettings.openTime ?? "08:00",
         closeTime: newSettings.closeTime ?? "17:00",
+        adminPassword: newSettings.adminPassword ?? "admin123",
+        bufferMinutes: newSettings.bufferMinutes ?? 5,
       },
     });
 

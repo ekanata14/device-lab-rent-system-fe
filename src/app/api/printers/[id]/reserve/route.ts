@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../db";
 import { pusherServer } from "@/lib/pusher";
 
+import { saveBase64Image } from "@/lib/file-storage";
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -9,6 +11,13 @@ export async function POST(
   try {
     const { id } = await params;
     const reservation = await request.json();
+
+    if (reservation.photoUrl) {
+      reservation.photoUrl = await saveBase64Image(
+        reservation.photoUrl,
+        "reservations",
+      );
+    }
 
     const printer = await prisma.printer.findUnique({
       where: { id },

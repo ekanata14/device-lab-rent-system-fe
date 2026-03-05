@@ -33,6 +33,7 @@ export default function Home() {
     getLabStatus,
     addPrinter,
     removePrinter,
+    resolvePrinter,
   } = usePrinters();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -72,10 +73,10 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-headline font-bold text-foreground leading-tight tracking-tight">
-                3D Prototype Lab
+                Lab Purwarupa
               </h1>
               <p className="text-[10px] text-primary font-bold uppercase tracking-[0.2em] opacity-80">
-                Monitoring System
+                Teknologi Kedokteran
               </p>
             </div>
           </div>
@@ -194,6 +195,7 @@ export default function Home() {
                   onForceStop={forceStop}
                   onReportBroken={reportBroken}
                   onReset={resetPrinter}
+                  onResolve={resolvePrinter}
                 />
               ))}
             </div>

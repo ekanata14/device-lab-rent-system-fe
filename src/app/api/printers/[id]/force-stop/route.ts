@@ -18,21 +18,34 @@ export async function POST(
       return NextResponse.json({ error: "Printer not found" }, { status: 404 });
     }
 
-    if (!printer.currentUser) {
+    if (!printer.currentUser && !printer.nextReservation) {
       return NextResponse.json(
-        { error: "No active reservation to stop" },
+        { error: "No active reservation or queue to stop" },
         { status: 400 },
       );
     }
 
     const currentUser = printer.currentUser as any;
 
+    const labSettings = await prisma.labSettings.findUnique({
+      where: { id: 1 },
+    });
+    const globalAdminPass = labSettings?.adminPassword || "admin123";
+
     // Verify Password
     if (
+      currentUser &&
       currentUser.sessionPassword &&
       currentUser.sessionPassword !== password
     ) {
-      if (password !== "admin123") {
+      if (password !== globalAdminPass) {
+        return NextResponse.json(
+          { success: false, error: "Invalid password" },
+          { status: 401 },
+        );
+      }
+    } else if (!currentUser) {
+      if (password !== globalAdminPass) {
         return NextResponse.json(
           { success: false, error: "Invalid password" },
           { status: 401 },
@@ -40,33 +53,32 @@ export async function POST(
       }
     }
 
-    // Log the usage
-    await prisma.usageLog.create({
-      data: {
-        printerId: printer.id,
-        printerName: printer.name,
-        userName: currentUser.name,
-        studentId: currentUser.studentId,
-        usageTime: currentUser.durationInMinutes,
-        startTime: new Date(
-          new Date(printer.endTime!).getTime() -
-            currentUser.durationInMinutes * 60000,
-        ),
-        endTime: new Date(),
-        stopReason: reason || "User finished",
-        statusAtEnd: reason ? "force-stopped" : "completed",
-      },
-    });
+    if (currentUser) {
+      // Log the usage
+      await prisma.usageLog.create({
+        data: {
+          printerId: printer.id,
+          printerName: printer.name,
+          userName: currentUser.name,
+          studentId: currentUser.studentId,
+          usageTime: currentUser.durationInMinutes,
+          startTime: new Date(
+            new Date(printer.endTime!).getTime() -
+              currentUser.durationInMinutes * 60000,
+          ),
+          endTime: new Date(),
+          photoUrl: currentUser.photoUrl || null,
+          stopReason: reason || "User finished",
+          statusAtEnd: reason ? "force-stopped" : "completed",
+        },
+      });
+    }
 
     let newStatus = "available";
     let newBufferEndTime = null;
     let newCurrentUser = null;
     let newEndTime = null;
-
-    if (printer.nextReservation) {
-      newStatus = "buffer";
-      newBufferEndTime = new Date(Date.now() + 5 * 60000);
-    }
+    let newNextReservation = null;
 
     const updatedPrinter = await prisma.printer.update({
       where: { id },
@@ -76,6 +88,8 @@ export async function POST(
         // @ts-ignore
         currentUser: newCurrentUser,
         endTime: newEndTime,
+        // @ts-ignore
+        nextReservation: newNextReservation,
       },
     });
 

@@ -34,6 +34,7 @@ export async function POST(
               currentUser.durationInMinutes * 60000,
           ),
           endTime: new Date(),
+          photoUrl: currentUser.photoUrl || null,
           stopReason: reason || "Printer broke during use",
           statusAtEnd: "broken",
         },

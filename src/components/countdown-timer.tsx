@@ -1,15 +1,21 @@
+"use client";
 
-"use client"
-
-import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { Clock } from "lucide-react";
 
 interface CountdownTimerProps {
   endTime: string;
+  onFinish?: () => void;
 }
 
-export function CountdownTimer({ endTime }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<string>('');
+export function CountdownTimer({ endTime, onFinish }: CountdownTimerProps) {
+  const [timeLeft, setTimeLeft] = useState<string>("");
+  const hasFinishedRef = useRef(false);
+
+  useEffect(() => {
+    // Reset the ref if the endTime changes
+    hasFinishedRef.current = false;
+  }, [endTime]);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -18,7 +24,11 @@ export function CountdownTimer({ endTime }: CountdownTimerProps) {
       const diff = end - now;
 
       if (diff <= 0) {
-        setTimeLeft('Finishing...');
+        setTimeLeft("Finishing...");
+        if (!hasFinishedRef.current && onFinish) {
+          hasFinishedRef.current = true;
+          onFinish();
+        }
         return;
       }
 
@@ -26,7 +36,7 @@ export function CountdownTimer({ endTime }: CountdownTimerProps) {
       const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-      setTimeLeft(`${h > 0 ? h + 'h ' : ''}${m}m ${s}s`);
+      setTimeLeft(`${h > 0 ? h + "h " : ""}${m}m ${s}s`);
     };
 
     updateTimer();

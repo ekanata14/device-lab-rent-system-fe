@@ -9,6 +9,7 @@ import {
   LabSettings,
 } from "@/types/printer";
 import { useToast } from "@/hooks/use-toast";
+import { playNotificationSound } from "@/lib/audio";
 
 const API_BASE_URL = "/api";
 
@@ -52,12 +53,24 @@ export function usePrinters() {
       },
     );
 
+    pusher.connection.bind("connected", () => {
+      console.log("🟢 Pusher Realtime: Connected!");
+    });
+
+    pusher.connection.bind("error", (err: any) => {
+      console.error("🔴 Pusher Error:", err);
+    });
+
     const channel = pusher.subscribe("lab-channel");
     channel.bind("printers_updated", () => {
+      console.log(
+        "⚡ [Realtime event] printers_updated received! Fetching fresh data...",
+      );
       fetchData();
     });
 
     return () => {
+      console.log("🔴 Pusher Realtime: Disconnecting...");
       pusher.unsubscribe("lab-channel");
     };
   }, [fetchData]);
@@ -97,6 +110,7 @@ export function usePrinters() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reservation),
       });
+      playNotificationSound("start");
       fetchData();
     },
     [fetchData],
@@ -113,6 +127,7 @@ export function usePrinters() {
         title: "Joined Queue",
         description: "Success! You are next in line.",
       });
+      playNotificationSound("queue");
       fetchData();
     },
     [toast, fetchData],
@@ -130,6 +145,7 @@ export function usePrinters() {
       );
       const data = await res.json();
       if (data.success) {
+        playNotificationSound("stop");
         fetchData();
         return true;
       }
@@ -156,6 +172,18 @@ export function usePrinters() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
+      fetchData();
+    },
+    [fetchData],
+  );
+
+  const resolvePrinter = useCallback(
+    async (printerId: string) => {
+      await fetch(`${API_BASE_URL}/printers/${printerId}/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      playNotificationSound("finish");
       fetchData();
     },
     [fetchData],
@@ -204,5 +232,6 @@ export function usePrinters() {
     getLabStatus,
     addPrinter,
     removePrinter,
+    resolvePrinter,
   };
 }

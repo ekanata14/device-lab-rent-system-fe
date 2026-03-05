@@ -1,5 +1,4 @@
-
-export type PrinterStatus = 'available' | 'in-use' | 'broken' | 'buffer';
+export type PrinterStatus = "available" | "in-use" | "broken" | "buffer";
 
 export interface UserReservation {
   name: string;
@@ -22,13 +21,17 @@ export interface UsageLog {
   endTime: string;
   photoUrl?: string;
   stopReason?: string;
-  statusAtEnd: 'completed' | 'force-stopped' | 'broken';
+  statusAtEnd: "completed" | "force-stopped" | "broken";
 }
 
 export interface LabSettings {
+  id?: number;
   isManuallyClosed: boolean;
-  openTime: string; // HH:mm
-  closeTime: string; // HH:mm
+  openTime: string;
+  closeTime: string;
+  adminPassword?: string;
+  bufferMinutes?: number;
+  updatedAt?: string;
 }
 
 export interface Printer {

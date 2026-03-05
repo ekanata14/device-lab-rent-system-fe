@@ -45,6 +45,7 @@ interface PrinterCardProps {
   ) => Promise<boolean> | boolean;
   onReportBroken: (id: string, reason: string) => void;
   onReset: (id: string) => void;
+  onResolve: (id: string) => void;
 }
 
 export function PrinterCard({
@@ -55,6 +56,7 @@ export function PrinterCard({
   onForceStop,
   onReportBroken,
   onReset,
+  onResolve,
 }: PrinterCardProps) {
   const isAvailable = printer.status === "available";
   const isInUse = printer.status === "in-use";
@@ -116,7 +118,10 @@ export function PrinterCard({
                 <Timer className="w-5 h-5 animate-spin-slow" />
                 <span className="text-sm font-medium">Maintenance Buffer</span>
               </div>
-              <CountdownTimer endTime={printer.bufferEndTime} />
+              <CountdownTimer
+                endTime={printer.bufferEndTime}
+                onFinish={() => onResolve(printer.id)}
+              />
               <p className="text-[10px] text-muted-foreground italic">
                 Hardware cool-down & calibration in progress
               </p>
@@ -125,7 +130,10 @@ export function PrinterCard({
 
           {isInUse && printer.endTime && (
             <div className="space-y-3">
-              <CountdownTimer endTime={printer.endTime} />
+              <CountdownTimer
+                endTime={printer.endTime}
+                onFinish={() => onResolve(printer.id)}
+              />
 
               {printer.currentUser && (
                 <div className="space-y-2 p-3 bg-card border rounded-lg">
