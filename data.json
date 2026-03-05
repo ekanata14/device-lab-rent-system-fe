@@ -1,0 +1,28 @@
+{
+  "printers": [
+    {
+      "id": "PRN-001",
+      "name": "Ender 3 Pro",
+      "model": "Creality",
+      "status": "available"
+    },
+    {
+      "id": "PRN-002",
+      "name": "Prusa i3 MK3S+",
+      "model": "Prusa Research",
+      "status": "available"
+    },
+    {
+      "id": "PRN-003",
+      "name": "Bambu Lab X1-Carbon",
+      "model": "Bambu Lab",
+      "status": "available"
+    }
+  ],
+  "logs": [],
+  "settings": {
+    "isManuallyClosed": false,
+    "openTime": "08:00",
+    "closeTime": "17:00"
+  }
+}

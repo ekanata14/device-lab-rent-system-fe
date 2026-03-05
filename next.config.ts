@@ -31,19 +31,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Tambahkan blok rewrites di sini
-  async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || "http://10.127.1.133:3001";
-
-    return [
-      {
-        // Menangkap semua request yang berawalan /api/ di frontend
-        source: "/api/:path*",
-        // Meneruskannya ke backend URL yang diatur di .env
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ];
-  },
+  // outputFileTracingRoot prevents lockfile collision bugs with higher directories
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

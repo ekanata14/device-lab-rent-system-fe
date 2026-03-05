@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Printer {
+  id              String         @id
+  name            String
+  model           String
+  status          String         // available, in-use, broken, buffer
+  endTime         DateTime?
+  bufferEndTime   DateTime?
+  brokenReason    String?
+  
+  // Relations mapped loosely (JSON stringified to quickly port the object, or related properly)
+  // For rapid porting of this simple structure, we can store currentUser and nextReservation as JSON
+  currentUser     Json?
+  nextReservation Json?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model UsageLog {
+  id           String   @id @default(uuid())
+  printerId    String
+  printerName  String
+  userName     String
+  studentId    String
+  usageTime    Int
+  startTime    DateTime
+  endTime      DateTime
+  photoUrl     String?
+  stopReason   String?
+  statusAtEnd  String   // completed, force-stopped, broken
+  
+  createdAt    DateTime @default(now())
+}
+
+model LabSettings {
+  id               Int      @id @default(1)
+  isManuallyClosed Boolean  @default(false)
+  openTime         String   @default("08:00") // HH:mm
+  closeTime        String   @default("17:00") // HH:mm
+  
+  updatedAt        DateTime @updatedAt
+}
