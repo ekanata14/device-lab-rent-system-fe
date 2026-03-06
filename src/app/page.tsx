@@ -34,6 +34,9 @@ export default function Home() {
     addPrinter,
     removePrinter,
     resolvePrinter,
+    editPrinter,
+    editLog,
+    deleteLog,
   } = usePrinters();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -203,7 +206,11 @@ export default function Home() {
 
           <TabsContent value="logs">
             <AdminGuard>
-              <UsageLogsView logs={logs} />
+              <UsageLogsView
+                logs={logs}
+                onEditLog={editLog}
+                onDeleteLog={deleteLog}
+              />
             </AdminGuard>
           </TabsContent>
 
@@ -215,6 +222,7 @@ export default function Home() {
                 onUpdate={setLabSettings}
                 onAddPrinter={addPrinter}
                 onRemovePrinter={removePrinter}
+                onEditPrinter={editPrinter}
               />
             </AdminGuard>
           </TabsContent>

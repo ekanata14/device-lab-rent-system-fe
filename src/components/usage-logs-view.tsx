@@ -1,19 +1,140 @@
+"use client";
 
-"use client"
-
-import { UsageLog } from '@/types/printer';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Image as ImageIcon, Info, History } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { useState } from "react";
+import { UsageLog } from "@/types/printer";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Image as ImageIcon, Info, History, Edit2, Trash2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
 
 interface UsageLogsViewProps {
   logs: UsageLog[];
+  onEditLog: (id: string, data: Partial<UsageLog>) => void;
+  onDeleteLog: (id: string) => void;
 }
 
-export function UsageLogsView({ logs }: UsageLogsViewProps) {
+function EditLogDialog({
+  log,
+  onSave,
+}: {
+  log: UsageLog;
+  onSave: (id: string, data: Partial<UsageLog>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState({
+    userName: log.userName,
+    studentId: log.studentId,
+    usageTime: log.usageTime,
+    statusAtEnd: log.statusAtEnd,
+    stopReason: log.stopReason || "",
+  });
+
+  const handleSave = () => {
+    onSave(log.id, {
+      ...data,
+      statusAtEnd: data.statusAtEnd as UsageLog["statusAtEnd"],
+    });
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-primary hover:bg-primary/10"
+        >
+          <Edit2 className="w-4 h-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Usage Log</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label>User Name</Label>
+            <Input
+              value={data.userName}
+              onChange={(e) => setData({ ...data, userName: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Student ID</Label>
+            <Input
+              value={data.studentId}
+              onChange={(e) => setData({ ...data, studentId: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Usage Time (minutes)</Label>
+            <Input
+              type="number"
+              value={data.usageTime}
+              onChange={(e) =>
+                setData({ ...data, usageTime: parseInt(e.target.value) || 0 })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Input
+              value={data.statusAtEnd}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  statusAtEnd: e.target.value as UsageLog["statusAtEnd"],
+                })
+              }
+            />
+            <p className="text-[10px] text-muted-foreground">
+              E.g., completed, force-stopped, broken
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Stop Reason</Label>
+            <Input
+              value={data.stopReason}
+              onChange={(e) => setData({ ...data, stopReason: e.target.value })}
+            />
+          </div>
+        </div>
+        <Button onClick={handleSave} className="w-full">
+          Save Changes
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function UsageLogsView({
+  logs,
+  onEditLog,
+  onDeleteLog,
+}: UsageLogsViewProps) {
   if (logs.length === 0) {
     return (
       <div className="text-center py-20 border-2 border-dashed rounded-xl bg-card/30">
@@ -34,7 +155,7 @@ export function UsageLogsView({ logs }: UsageLogsViewProps) {
             <TableHead>Duration</TableHead>
             <TableHead>Timestamp</TableHead>
             <TableHead>Proof</TableHead>
-            <TableHead className="text-right">Details</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -43,52 +164,90 @@ export function UsageLogsView({ logs }: UsageLogsViewProps) {
               <TableCell>
                 <div className="flex flex-col">
                   <span className="font-medium">{log.userName}</span>
-                  <span className="text-[10px] text-muted-foreground">{log.studentId}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {log.studentId}
+                  </span>
                 </div>
               </TableCell>
               <TableCell>{log.printerName}</TableCell>
               <TableCell>
-                <Badge variant={
-                  log.statusAtEnd === 'completed' ? 'default' : 
-                  log.statusAtEnd === 'force-stopped' ? 'secondary' : 
-                  'destructive'
-                } className="text-[10px] uppercase">
-                  {log.statusAtEnd.replace('-', ' ')}
+                <Badge
+                  variant={
+                    log.statusAtEnd === "completed"
+                      ? "default"
+                      : log.statusAtEnd === "force-stopped"
+                        ? "secondary"
+                        : "destructive"
+                  }
+                  className="text-[10px] uppercase"
+                >
+                  {log.statusAtEnd.replace("-", " ")}
                 </Badge>
               </TableCell>
               <TableCell className="tabular-nums">{log.usageTime}m</TableCell>
               <TableCell className="text-xs text-muted-foreground">
-                {format(new Date(log.endTime), 'MMM d, HH:mm')}
+                {format(new Date(log.endTime), "MMM d, HH:mm")}
               </TableCell>
               <TableCell>
                 {log.photoUrl && (
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/20">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/20"
+                      >
                         <ImageIcon className="w-4 h-4 text-primary" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80 p-0 border-primary/30">
-                      <img src={log.photoUrl} alt="Session Proof" className="w-full h-auto" />
-                      <div className="p-2 bg-muted text-[10px] italic">Photo captured at registration</div>
+                      <img
+                        src={log.photoUrl}
+                        alt="Session Proof"
+                        className="w-full h-auto"
+                      />
+                      <div className="p-2 bg-muted text-[10px] italic">
+                        Photo captured at registration
+                      </div>
                     </PopoverContent>
                   </Popover>
                 )}
               </TableCell>
               <TableCell className="text-right">
-                {log.stopReason && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-3 text-sm">
-                      <p className="font-semibold mb-1">Stop Reason:</p>
-                      <p className="text-muted-foreground italic text-xs">"{log.stopReason}"</p>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                <div className="flex items-center justify-end gap-1">
+                  {log.stopReason && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Info className="w-4 h-4 text-muted-foreground" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-3 text-sm">
+                        <p className="font-semibold mb-1">Stop Reason:</p>
+                        <p className="text-muted-foreground italic text-xs">
+                          "{log.stopReason}"
+                        </p>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                  <EditLogDialog log={log} onSave={onEditLog} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this usage log? This action cannot be undone.",
+                        )
+                      ) {
+                        onDeleteLog(log.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

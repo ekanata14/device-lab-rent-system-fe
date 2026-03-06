@@ -23,3 +23,30 @@ export async function DELETE(
     );
   }
 }
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+
+    const updatedPrinter = await prisma.printer.update({
+      where: { id },
+      data: {
+        name: body.name,
+        model: body.model,
+      },
+    });
+
+    await pusherServer.trigger("lab-channel", "printers_updated", {});
+
+    return NextResponse.json(updatedPrinter, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to update printer" },
+      { status: 500 },
+    );
+  }
+}

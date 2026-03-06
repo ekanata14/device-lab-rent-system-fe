@@ -30,6 +30,7 @@ interface LabConfigViewProps {
   onUpdate: (settings: LabSettings) => void;
   onAddPrinter: (name: string, model: string) => void;
   onRemovePrinter: (id: string) => void;
+  onEditPrinter: (id: string, data: Partial<Printer>) => void;
 }
 
 export function LabConfigView({
@@ -38,8 +39,14 @@ export function LabConfigView({
   onUpdate,
   onAddPrinter,
   onRemovePrinter,
+  onEditPrinter,
 }: LabConfigViewProps) {
   const [newPrinter, setNewPrinter] = useState({ name: "", model: "" });
+  const [editingPrinterId, setEditingPrinterId] = useState<string | null>(null);
+  const [editPrinterData, setEditPrinterData] = useState({
+    name: "",
+    model: "",
+  });
 
   const handleToggle = (checked: boolean) => {
     onUpdate({ ...settings, isManuallyClosed: checked });
@@ -158,20 +165,83 @@ export function LabConfigView({
                   key={p.id}
                   className="flex items-center justify-between p-3 bg-card border rounded-lg hover:border-primary/30 transition-colors"
                 >
-                  <div>
-                    <span className="font-bold mr-2">{p.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {p.model}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onRemovePrinter(p.id)}
-                    className="text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {editingPrinterId === p.id ? (
+                    <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-2 mr-2">
+                      <Input
+                        value={editPrinterData.name}
+                        onChange={(e) =>
+                          setEditPrinterData({
+                            ...editPrinterData,
+                            name: e.target.value,
+                          })
+                        }
+                        className="h-8"
+                        placeholder="Name"
+                      />
+                      <Input
+                        value={editPrinterData.model}
+                        onChange={(e) =>
+                          setEditPrinterData({
+                            ...editPrinterData,
+                            model: e.target.value,
+                          })
+                        }
+                        className="h-8"
+                        placeholder="Model"
+                      />
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onEditPrinter(p.id, editPrinterData);
+                            setEditingPrinterId(null);
+                          }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingPrinterId(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="font-bold mr-2">{p.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {p.model}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => {
+                            setEditingPrinterId(p.id);
+                            setEditPrinterData({
+                              name: p.name,
+                              model: p.model,
+                            });
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRemovePrinter(p.id)}
+                          className="h-8 text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

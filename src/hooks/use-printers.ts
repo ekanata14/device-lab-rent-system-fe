@@ -219,6 +219,52 @@ export function usePrinters() {
     [toast, fetchData],
   );
 
+  const editPrinter = useCallback(
+    async (id: string, data: Partial<Printer>) => {
+      await fetch(`${API_BASE_URL}/printers/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      toast({
+        title: "Printer Updated",
+        description: "The unit details have been modified.",
+      });
+      fetchData();
+    },
+    [toast, fetchData],
+  );
+
+  const editLog = useCallback(
+    async (id: string, data: Partial<UsageLog>) => {
+      await fetch(`${API_BASE_URL}/logs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      toast({
+        title: "Log Updated",
+        description: "The usage session details were saved.",
+      });
+      fetchData();
+    },
+    [toast, fetchData],
+  );
+
+  const deleteLog = useCallback(
+    async (id: string) => {
+      await fetch(`${API_BASE_URL}/logs/${id}`, {
+        method: "DELETE",
+      });
+      toast({
+        title: "Log Deleted",
+        description: "The historical record has been removed.",
+      });
+      fetchData();
+    },
+    [toast, fetchData],
+  );
+
   return {
     printers,
     logs,
@@ -233,5 +279,8 @@ export function usePrinters() {
     addPrinter,
     removePrinter,
     resolvePrinter,
+    editPrinter,
+    editLog,
+    deleteLog,
   };
 }
