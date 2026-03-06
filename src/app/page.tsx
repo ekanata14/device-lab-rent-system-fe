@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePrinters } from "@/hooks/use-printers";
 import { PrinterCard } from "@/components/printer-card";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutGrid,
   List,
@@ -84,7 +85,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <ThemeToggle />
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">
                 Access Status

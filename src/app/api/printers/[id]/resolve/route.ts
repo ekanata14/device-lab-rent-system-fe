@@ -67,29 +67,16 @@ export async function POST(
       });
       const bufferMinutes = labSettings?.bufferMinutes ?? 5;
 
-      if (printer.nextReservation) {
-        updatedPrinter = await prisma.printer.update({
-          where: { id },
-          data: {
-            status: "buffer",
-            bufferEndTime: new Date(Date.now() + bufferMinutes * 60000),
-            // @ts-ignore
-            currentUser: null,
-            endTime: null,
-          },
-        });
-      } else {
-        updatedPrinter = await prisma.printer.update({
-          where: { id },
-          data: {
-            status: "available",
-            bufferEndTime: null,
-            // @ts-ignore
-            currentUser: null,
-            endTime: null,
-          },
-        });
-      }
+      updatedPrinter = await prisma.printer.update({
+        where: { id },
+        data: {
+          status: "buffer",
+          bufferEndTime: new Date(Date.now() + bufferMinutes * 60000),
+          // @ts-ignore
+          currentUser: null,
+          endTime: null,
+        },
+      });
     } else if (printer.status === "buffer") {
       const nextRes = printer.nextReservation as any;
       if (nextRes) {

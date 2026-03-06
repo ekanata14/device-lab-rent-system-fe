@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Printer } from "@/types/printer";
 import { ShieldAlert, CircleStop, HelpCircle } from "lucide-react";
@@ -24,6 +25,7 @@ interface ForceStopDialogProps {
   onForceStop: (
     password: string,
     reason?: string,
+    clearQueue?: boolean,
   ) => Promise<boolean> | boolean;
   variant: "admin" | "user";
 }
@@ -36,6 +38,7 @@ export function ForceStopDialog({
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [reason, setReason] = useState("");
+  const [clearQueue, setClearQueue] = useState(false);
   const { toast } = useToast();
 
   const handleConfirm = async (e: React.FormEvent) => {
@@ -50,7 +53,7 @@ export function ForceStopDialog({
       return;
     }
 
-    const success = await onForceStop(password, reason);
+    const success = await onForceStop(password, reason, clearQueue);
 
     if (success) {
       toast({
@@ -63,6 +66,7 @@ export function ForceStopDialog({
       setOpen(false);
       setPassword("");
       setReason("");
+      setClearQueue(false);
     } else {
       toast({
         variant: "destructive",
@@ -133,6 +137,24 @@ export function ForceStopDialog({
               the next user can start.
             </p>
           </div>
+
+          {variant === "admin" && (
+            <div className="flex items-center justify-between p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <div className="space-y-0.5">
+                <Label className="text-destructive font-bold text-sm">
+                  Clear Queue
+                </Label>
+                <p className="text-xs text-destructive/80">
+                  Also remove the next reservation in queue
+                </p>
+              </div>
+              <Switch
+                checked={clearQueue}
+                onCheckedChange={setClearQueue}
+                className="data-[state=checked]:bg-destructive"
+              />
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="submit" variant="destructive" className="w-full">

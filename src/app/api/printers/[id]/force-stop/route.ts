@@ -8,7 +8,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const { password, reason } = await request.json();
+    const { password, reason, clearQueue } = await request.json();
 
     const printer = await prisma.printer.findUnique({
       where: { id },
@@ -78,7 +78,18 @@ export async function POST(
     let newBufferEndTime = null;
     let newCurrentUser = null;
     let newEndTime = null;
-    let newNextReservation = null;
+    let newNextReservation = clearQueue ? null : printer.nextReservation;
+
+    const bufferMinutes = labSettings?.bufferMinutes ?? 5;
+
+    // Determine the status after force stopping
+    if (currentUser) {
+      newStatus = "buffer";
+      newBufferEndTime = new Date(Date.now() + bufferMinutes * 60000);
+    } else if (printer.status === "buffer") {
+      newStatus = "buffer";
+      newBufferEndTime = printer.bufferEndTime;
+    }
 
     const updatedPrinter = await prisma.printer.update({
       where: { id },

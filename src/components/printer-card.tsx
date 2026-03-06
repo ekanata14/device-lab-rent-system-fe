@@ -42,6 +42,7 @@ interface PrinterCardProps {
     id: string,
     pass: string,
     reason?: string,
+    clearQueue?: boolean,
   ) => Promise<boolean> | boolean;
   onReportBroken: (id: string, reason: string) => void;
   onReset: (id: string) => void;
@@ -179,8 +180,8 @@ export function PrinterCard({
                   <ForceStopDialog
                     printer={printer}
                     variant="user"
-                    onForceStop={(pass, reason) =>
-                      onForceStop(printer.id, pass, reason)
+                    onForceStop={(pass, reason, clearQueue) =>
+                      onForceStop(printer.id, pass, reason, clearQueue)
                     }
                   />
                 </div>
@@ -251,8 +252,8 @@ export function PrinterCard({
             <ForceStopDialog
               printer={printer}
               variant="admin"
-              onForceStop={(pass, reason) =>
-                onForceStop(printer.id, pass, reason)
+              onForceStop={(pass, reason, clearQueue) =>
+                onForceStop(printer.id, pass, reason, clearQueue)
               }
             />
           </div>
@@ -262,8 +263,8 @@ export function PrinterCard({
           <ForceStopDialog
             printer={printer}
             variant="admin"
-            onForceStop={(pass, reason) =>
-              onForceStop(printer.id, pass, reason)
+            onForceStop={(pass, reason, clearQueue) =>
+              onForceStop(printer.id, pass, reason, clearQueue)
             }
           />
         )}
@@ -279,8 +280,8 @@ export function PrinterCard({
             <ForceStopDialog
               printer={printer}
               variant="admin"
-              onForceStop={(pass, reason) =>
-                onForceStop(printer.id, pass, reason)
+              onForceStop={(pass, reason, clearQueue) =>
+                onForceStop(printer.id, pass, reason, clearQueue)
               }
             />
           </div>

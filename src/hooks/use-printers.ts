@@ -134,13 +134,18 @@ export function usePrinters() {
   );
 
   const forceStop = useCallback(
-    async (printerId: string, password: string, reason?: string) => {
+    async (
+      printerId: string,
+      password: string,
+      reason?: string,
+      clearQueue?: boolean,
+    ) => {
       const res = await fetch(
         `${API_BASE_URL}/printers/${printerId}/force-stop`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password, reason }),
+          body: JSON.stringify({ password, reason, clearQueue }),
         },
       );
       const data = await res.json();
